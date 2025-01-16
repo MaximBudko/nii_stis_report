@@ -65,7 +65,7 @@ groups.each do |group|
         next
     end
 
-    wb.add_worksheet(name: "#{group}") do |sheet|
+    wb.add_worksheet(name: "#{group.name[0,31]}") do |sheet|
         
         #Первая строка
         sheet.add_row [" "," "," "," ","ФИНС-ОО-СК-019 А"], style: first_header
