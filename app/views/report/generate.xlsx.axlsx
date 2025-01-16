@@ -140,13 +140,13 @@ groups.each do |group|
             #Выбор тех задач которые попадают в диапазон
             user_issues = all_issues.where(created_on: @start_date..@end_date)
 
-            
+        
             #Подсчет количества отработанных часов
             user_issues.each do |issue|
                 sheet.add_row [
                     issues_iterator.to_i,
                     issue.description.to_s,
-                    issue.estimated_hours.to_s || 'Не указано',
+                    issue.time_entries.sum(&:hours) || 'Не указано',
                     issue.project.name || 'Нет темы',
                     ""
                 ], style: [
@@ -156,10 +156,9 @@ groups.each do |group|
                     type_of_work,
                     empty_cell
                 ]
-                
                 issues_iterator += 1
                 ultimate_iterator +=1
-                total_estimate += issue.estimated_hours.to_i > 0 ? issue.estimated_hours.to_i : 0
+                total_estimate += issue.time_entries.sum(&:hours) > 0 ? issue.time_entries.sum(&:hours) : 0
             end
             issues_iterator = 1
             sheet.add_row ["ИТОГО (ч)","", "#{total_estimate}", "", ""], style: [empty_cell, empty_cell, type_of_work, empty_cell, empty_cell]
