@@ -138,7 +138,7 @@ groups.each do |group|
             
             
             #Выбор тех задач которые попадают в диапазон
-            user_issues = all_issues.where(created_on: @start_date..@end_date)
+            user_issues = all_issues.where(start_date: @start_date..@end_date) || all_issues.where(due_date: @start_date..@end_date)
 
         
             #Подсчет количества отработанных часов
