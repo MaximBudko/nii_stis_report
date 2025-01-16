@@ -1,0 +1,35 @@
+<%= stylesheet_link_tag 'monthly_report', plugin: 'monthly_report' %>
+    <h1>Генерация отчета</h1>
+    <%= form_with url: generate_report_path(format: :xlsx), method: :post, local: true do |f| %>
+
+    <div>
+        <% @groups123.each do |group| %>
+        <% next if group.name == 'Анонимные пользователи' || 
+        group.name == 'Не участвующие пользователи' || 
+        group.name == 'Anonymous' || 
+        group.name == 'Non member'%>
+        <div>
+            <%= check_box_tag 'groups[]', group.name, @selected_groups.include?(group.id.to_s), class: 'checkbox-other'  %>
+            <%= label_tag "groups_#{group.name}", group.name%>
+        </div>
+        <% end %>
+    </div>
+    <div>
+        <label for="starte_date">
+            Дата начала:
+        </label>
+        <%= f.date_field 'start_date'%>
+    </div>
+    <div>
+        <label>
+            Дата окончания:
+        </label>
+        <%= f.date_field 'end_date'%>
+    </div>
+        <div>
+        <div>
+            <%= f.submit "Сгенерировать", class: 'btn'%>  
+        </div>
+        </div>
+    <% end %>
+</div>

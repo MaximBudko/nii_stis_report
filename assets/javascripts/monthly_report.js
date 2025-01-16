@@ -1,0 +1,1 @@
+import '../stylesheets/monthly_report.css';
