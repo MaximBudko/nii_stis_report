@@ -138,15 +138,25 @@ groups.each do |group|
             
             
             #Выбор тех задач которые попадают в диапазон
-            user_issues = all_issues.where(start_date: @start_date..@end_date) || all_issues.where(due_date: @start_date..@end_date)
+            user_issues = []
+            all_issues.each do |issue|
+                if (@start_date..@end_date).cover?(issue.start_date) || 
+                   (@start_date..@end_date).cover?(issue.due_date)
+                    user_issues << issue
+                end
+            end
 
-        
             #Подсчет количества отработанных часов
             user_issues.each do |issue|
+
+                #Суммирование часов потраченных на задачу
+                issue_id = issue.id
+                time_entries = TimeEntry.where(issue_id: issue_id, spent_on: @start_date..@end_date) || 0
+
                 sheet.add_row [
                     issues_iterator.to_i,
                     issue.description.to_s,
-                    issue.time_entries.sum(&:hours) || 'Не указано',
+                    time_entries.sum(&:hours),
                     issue.project.name || 'Нет темы',
                     ""
                 ], style: [
@@ -158,7 +168,9 @@ groups.each do |group|
                 ]
                 issues_iterator += 1
                 ultimate_iterator +=1
-                total_estimate += issue.time_entries.sum(&:hours) > 0 ? issue.time_entries.sum(&:hours) : 0
+
+
+                total_estimate += time_entries.sum(&:hours).to_i
             end
             issues_iterator = 1
             sheet.add_row ["ИТОГО (ч)","", "#{total_estimate}", "", ""], style: [empty_cell, empty_cell, type_of_work, empty_cell, empty_cell]
