@@ -156,7 +156,7 @@ groups.each do |group|
                 sheet.add_row [
                     issues_iterator.to_i,
                     issue.description.to_s,
-                    time_entries.sum(&:hours),
+                    time_entries.sum(&:hours).to_i,
                     issue.project.name || 'Нет темы',
                     ""
                 ], style: [
