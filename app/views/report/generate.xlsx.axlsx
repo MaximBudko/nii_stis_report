@@ -152,7 +152,11 @@ groups.each do |group|
                 #Суммирование часов потраченных на задачу
                 issue_id = issue.id
                 time_entries = TimeEntry.where(issue_id: issue_id, spent_on: @start_date..@end_date) || 0
-
+                
+                if time_entries.sum(&:hours).to_i == 0 
+                    next
+                end
+                
                 sheet.add_row [
                     issues_iterator.to_i,
                     issue.description.to_s,
