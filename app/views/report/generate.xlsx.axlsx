@@ -9,6 +9,8 @@ wb = xlsx_package.workbook
     table_user_issues = s.add_style alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
     Axlsx::STYLE_THIN_BORDER
 
+    title_empty_cell = s.add_style alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman'
+
     #Стиль для ячейки с итераторм (Номер выполненной работы)
     iterator_cells = s.add_style alignment: {horizontal: :center, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
     
@@ -98,9 +100,9 @@ groups.each do |group|
         title_table_view.add_run("#{group}", b: true)
         title_table_view.add_run("\n")
         title_table_view.add_run("#{month_name} #{year_view} г.", b: true)
+        
+        sheet.add_row [title_table_view, "", "", "", ""], style: table_title
         sheet.merge_cells('A3:E3')
-        sheet.add_row [title_table_view], style: table_title
-
 
         sheet.add_row ["№ п/п", "Наименование выполненных работ, мероприятий", "Затраченное время","Вид и/или тема работы", "Форма подтвержения выполнения работ, подтверждающие документы(при наличии)"], style: table_column_name
         sheet.column_widths 5, 60, 10, 20, 35
