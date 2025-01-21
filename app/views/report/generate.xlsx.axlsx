@@ -111,13 +111,22 @@ groups.each do |group|
         
         user_in_group = group.present? ? users.select {|user| group.users.include?(user)} : []
         
+        p user_in_group
+
         iterator = 1
         issues_iterator = 1 
         ultimate_iterator = 6
         total_estimate = 0
         
 
-        user_in_group.each do |user|
+
+        sorted_users = user_in_group.sort_by do |user|
+            custom_value = user.custom_values.find { |cv| cv.custom_field.name == 'hierarchical_level' }
+            custom_value ? custom_value.value.to_i : Float::INFINITY
+        end
+
+
+        sorted_users.each do |user|
             sheet.merge_cells("A#{ultimate_iterator}:E#{ultimate_iterator}")
             
             #Переворот ФИО в нужную последовательность
@@ -199,7 +208,7 @@ groups.each do |group|
 
             #Блок подписей
             i = 1
-            user_in_group.each do |user|
+            sorted_users.each do |user|
                 custom_field_users_surname2 = user.custom_field_values.detect {|cf| cf.custom_field.name == 'surname'}
                 sheet.add_row ["#{i}", "________________/#{user.name.to_s[0]}.#{custom_field_users_surname2.to_s[0]}. #{user.lastname.to_s}"], style: [sign_footer_iter, sign_footer]
                 i += 1 
