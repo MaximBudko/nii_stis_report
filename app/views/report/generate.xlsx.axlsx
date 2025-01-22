@@ -101,7 +101,7 @@ groups.each do |group|
         title_table_view.add_run("\n")
         title_table_view.add_run("#{month_name} #{year_view} г.", b: true)
         
-        sheet.add_row [title_table_view, "", "", "", ""], style: table_title
+        sheet.add_row [title_table_view, "", "", "", ""], style: [table_title, table_title, table_title, table_title, table_title,]
         sheet.merge_cells('A3:E3')
 
         sheet.add_row ["№ п/п", "Наименование выполненных работ, мероприятий", "Затраченное время","Вид и/или тема работы", "Форма подтвержения выполнения работ, подтверждающие документы(при наличии)"], style: table_column_name
@@ -111,8 +111,6 @@ groups.each do |group|
         
         user_in_group = group.present? ? users.select {|user| group.users.include?(user)} : []
         
-        p user_in_group
-
         iterator = 1
         issues_iterator = 1 
         ultimate_iterator = 6
@@ -168,11 +166,20 @@ groups.each do |group|
                     next
                 end
                 
+                project_name = "Нет данных"
+
+                if issue.project.parent == nil && issue.project.name != nil
+                    project_name = issue.project.name 
+                else 
+                    project_name = issue.project.parent.name 
+                end
+
+
                 sheet.add_row [
                     issues_iterator.to_i,
                     issue.description.to_s,
                     time_entries.sum(&:hours).to_i,
-                    issue.project.name || 'Нет темы',
+                    project_name,
                     ""
                 ], style: [
                     iterator_cells,
