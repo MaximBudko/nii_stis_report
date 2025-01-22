@@ -95,13 +95,13 @@ groups.each do |group|
 
         #Третья строка (заголовок таблицы, сделать автодату)
         title_table_view = Axlsx::RichText.new
-        title_table_view.add_run('ОТЧЕТ', b: true)
-        title_table_view.add_run("\n")
-        title_table_view.add_run("#{group}", b: true)
-        title_table_view.add_run("\n")
-        title_table_view.add_run("#{month_name} #{year_view} г.", b: true)
+        title_table_view.add_run('ОТЧЕТ', b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
+        title_table_view.add_run("\n", b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
+        title_table_view.add_run("#{group}", b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
+        title_table_view.add_run("\n", b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
+        title_table_view.add_run("#{month_name} #{year_view} г.", b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
         
-        sheet.add_row [title_table_view, "", "", "", ""], style: [table_title, table_title, table_title, table_title, table_title,]
+        sheet.add_row [title_table_view, "", "", "", ""],  height: 50, style: table_title
         sheet.merge_cells('A3:E3')
 
         sheet.add_row ["№ п/п", "Наименование выполненных работ, мероприятий", "Затраченное время","Вид и/или тема работы", "Форма подтвержения выполнения работ, подтверждающие документы(при наличии)"], style: table_column_name
