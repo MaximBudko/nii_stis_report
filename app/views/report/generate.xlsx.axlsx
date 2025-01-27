@@ -148,9 +148,11 @@ groups.each do |group|
             
             #Выбор тех задач которые попадают в диапазон
             user_issues = []
+            
+            
             all_issues.each do |issue|
-                if (@start_date..@end_date).cover?(issue.start_date) || 
-                   (@start_date..@end_date).cover?(issue.due_date)
+                if (issue.start_date..issue.due_date).cover?(@start_date) || 
+                   (issue.start_date..issue.due_date).cover?(@end_date)
                     user_issues << issue
                 end
             end
@@ -162,6 +164,8 @@ groups.each do |group|
                 issue_id = issue.id
                 time_entries = TimeEntry.where(issue_id: issue_id, spent_on: @start_date..@end_date) || 0
                 
+                
+
                 if time_entries.sum(&:hours).to_i == 0 
                     next
                 end
