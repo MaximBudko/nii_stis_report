@@ -161,14 +161,6 @@ groups.each do |group|
 
             
 
-
-            #all_issues.each do |issue|
-                #if (@start_date..@end_date).cover?(issue.start_date) || 
-                   #(@start_date..@end_date).cover?(issue.due_date)
-                    #user_issues << issue
-                #end
-            #end
-
             #Подсчет количества отработанных часов
             user_issues.each do |issue|
 
