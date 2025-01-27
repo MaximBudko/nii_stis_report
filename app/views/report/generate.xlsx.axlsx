@@ -152,10 +152,22 @@ groups.each do |group|
             
             all_issues.each do |issue|
                 if (issue.start_date..issue.due_date).cover?(@start_date) || 
-                   (issue.start_date..issue.due_date).cover?(@end_date)
+                   (issue.start_date..issue.due_date).cover?(@end_date) ||
+                   (@start_date..@end_date).cover?(issue.start_date) ||
+                   (@start_date..@end_date).cover?(issue.due_date)
                     user_issues << issue
                 end
             end
+
+            
+
+
+            #all_issues.each do |issue|
+                #if (@start_date..@end_date).cover?(issue.start_date) || 
+                   #(@start_date..@end_date).cover?(issue.due_date)
+                    #user_issues << issue
+                #end
+            #end
 
             #Подсчет количества отработанных часов
             user_issues.each do |issue|
