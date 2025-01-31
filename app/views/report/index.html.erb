@@ -27,9 +27,23 @@
         <%= f.date_field 'end_date'%>
     </div>
         <div>
-        <div>
             <%= f.submit "Сгенерировать", class: 'btn'%>  
+            <hr>
         </div>
+        <% end %>
+    <div>
+        <h1>Генерация плана работ</h1>
+        <div>
+            <%= form_with url: generate_planning_path(format: :xlsx), method: :post, local: true do |j| %>
+        <div>
+            <label>Дата нача планирования:</label>
+            <%= j.date_field 'planning_date'%>
         </div>
-    <% end %>
+        <div>
+            <%= j.submit "Планирование", class: 'btn'%>
+        </div>
+    </div>   
 </div>
+<% end %>
+</div> 
+    

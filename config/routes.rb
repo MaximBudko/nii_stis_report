@@ -4,4 +4,5 @@
 RedmineApp::Application.routes.draw do
     get '/report' , to: 'report#index'
     post '/report', to: 'report#generate', as: 'generate_report'
+    post '/planning', to: 'report#generate_planning', as: 'generate_planning' 
 end

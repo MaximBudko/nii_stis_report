@@ -38,4 +38,21 @@ class ReportController < ApplicationController
       }
     end
   end
+
+  def generate_planning
+    planning_date = params[:planning_date]
+    if planning_date.blank?
+      flash[:error] = "Необходимо указать дату !"
+      redirect_to action: 'index' and return
+    end
+    
+    @planning_date = Date.parse(planning_date)
+     
+    respond_to do |format|
+      format.html
+      format.xlsx {
+        response.headers['Content-Disposition'] = 'attacment; filename="Планирование.xlsx"'
+      }
+    end
+  end
 end
