@@ -1,0 +1,210 @@
+wb = xlsx_package.workbook 
+    
+#Стили к таблицам
+    s = wb.styles
+    header = s.add_style sz: 12, alignment: {horizontal: :right, wrap_text: true}, font_name: 'Times New Roman'
+    first_header = s.add_style sz: 10, font_name: 'Times New Roman', alignment: {horizontal: :right}
+    table_title = s.add_style alignment: {horizontal: :center, vertical: :center, wrap_text: true}, sz: 12, font_name: 'Times New Roman'
+    table_user_row = s.add_style alignment: {horizontal: :center, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman', b: true, border: {style: :thin, color: '000000'}
+    table_user_issues = s.add_style alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
+    Axlsx::STYLE_THIN_BORDER
+
+    title_empty_cell = s.add_style alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman'
+
+    #Стиль для ячейки с итераторм (Номер выполненной работы)
+    iterator_cells = s.add_style alignment: {horizontal: :center, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
+    
+    #Стиль для наименования выполненной работы
+    work_of_name = s.add_style alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
+
+    #Стиль к ячейке "Предпологаемое время"
+    estimated_hours_cells = s.add_style alignment: {horizontal: :center, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
+
+    #Стиль к "Вид или тема работы"
+    type_of_work = s.add_style alignment: {horizontal: :center, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
+    
+    #Стиль к "Подтверждение документом"
+    empty_cell = s.add_style alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
+
+    table_column_name = s.add_style alignment: {horizontal: :center, vertical: :center, wrap_text: true}, sz: 12, font_name: 'Times New Roman', b: true, border: {style: :thin, color: '000000'}
+    
+    #Стиль к полям с подписями
+    footer_style = s.add_style alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman'
+
+    #Итератор подписей
+    sign_footer_iter = s.add_style alignment: {horizontal: :right, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman'
+
+    #Подписи
+    sign_footer = s.add_style alignment: {horizontal: :left, vertical: :bottom, wrap_text: :true}, sz: 12, font_name: 'Times New Roman'
+
+
+groups_iters = Group.all
+users = User.all
+issues = Issue.all
+groups = []
+months_ru = [
+    nil, "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь","Декабрь"
+]
+
+job_title_field = CustomField.find_by(name: 'job_title')
+directors = users.joins(:custom_values).where(custom_values:{custom_field_id: job_title_field.id, value: 'Директор'})
+
+if @selected_groups_for_temp == nil
+    groups = Group.all
+else
+    @selected_groups_for_temp.each do |g|
+        groups_iters.each do |group|
+            if g.to_s == group.to_s
+                groups << group
+            end
+        end
+    end
+end
+
+
+groups.each do |group|
+    if group.to_s == 'Анонимные пользователи' || group.to_s == 'Не участвующие пользователи'
+        next
+    end
+
+    wb.add_worksheet(name: "#{group.name[0,31]}") do |sheet|
+        
+        #Первая строка
+        sheet.add_row [" "," "," "," ","ФИНС-ОО-СК-019 А"], style: first_header
+        sheet.column_widths nil, 80, 13, 25, 40
+
+        #Вторая строка (добавить роль директора, заменить статику)
+        rt = Axlsx::RichText.new
+        rt.add_run('УТВЕРЖДАЮ')
+        rt.add_run("\n")
+        rt.add_run('Директор ООО НИИ СТИС')
+        rt.add_run("\n")
+
+        directors.each do |user|
+            directors_surname = user.custom_field_values.detect {|cf| cf.custom_field.name == 'surname'}.to_s
+            rt.add_run("_____________ #{user.firstname[0]}. #{directors_surname[0]}. #{user.lastname}")
+        end
+
+        rt.add_run("\n")
+        current_year = Date.today.year
+        rt.add_run("«_____» ___________ #{current_year} г.")
+        sheet.add_row ["","","","", rt], style: header
+        
+        month_name = months_ru[@planning_date.month]
+        year_view = I18n.l(@planning_date, format: '%Y')
+
+        title_table_view = Axlsx::RichText.new
+        title_table_view.add_run('План работ', b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
+        title_table_view.add_run("\n", b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
+        title_table_view.add_run("#{group}", b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
+        title_table_view.add_run("\n", b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
+        title_table_view.add_run("#{month_name} #{year_view} г.", b: true, alignment: {horizontal: :left, vertical: :center, wrap_text: :true}, sz: 12, font_name: 'Times New Roman')
+        
+        sheet.add_row [title_table_view, "", "", "", ""],  height: 50, style: table_title
+        sheet.merge_cells('A3:E3')
+
+        sheet.add_row ["№ п/п", "Наименование выполненных работ, мероприятий", "Ответственный исполнитель (подразделение)","Вид и/или тема работы", "Форма подтвержения выполнения работ, подтверждающие документы(при наличии)"], style: table_column_name
+        sheet.column_widths 5, 60, 10, 20, 35
+        sheet.add_row ["1","2","3","4","5"], style:  table_column_name
+
+        
+        user_in_group = group.present? ? users.select {|user| group.users.include?(user)} : []
+        
+        iterator = 1
+        issues_iterator = 1 
+        ultimate_iterator = 6
+        total_estimate = 0
+        
+
+
+        sorted_users = user_in_group.sort_by do |user|
+            custom_value = user.custom_values.find { |cv| cv.custom_field.name == 'hierarchical_level' }
+            custom_value ? custom_value.value.to_i : Float::INFINITY
+        end
+
+
+        sorted_users.each do |user|
+            #sheet.merge_cells("A#{ultimate_iterator}:E#{ultimate_iterator}")
+            
+            #Переворот ФИО в нужную последовательность
+            get_user_name = user.name
+            user_name_split = get_user_name.split(" ")
+            first_user_name = user_name_split[0]
+            last_user_name = user_name_split[1]
+            
+            
+            custom_field_users_surname = user.custom_field_values.detect {|cf| cf.custom_field.name == 'surname'}
+            custom_field_users_job_title = user.custom_field_values.detect {|cf| cf.custom_field.name == 'job_title'}
+
+            
+            #Получение всех задач одного пользователя( на текущем этапе итерации)
+            user_id = user.id
+            all_issues = issues.where(assigned_to_id: user_id)
+            
+            
+            #Выбор тех задач которые попадают в диапазон
+            user_issues = []
+            
+            
+
+            all_issues.each do |issue|
+                if issue.start_date <= @planning_date
+                    user_issues << issue
+                end
+            end
+
+            
+            user_issues.each do |issue|
+
+                
+                project_name = "Нет данных"
+
+                if issue.project.parent == nil && issue.project.name != nil
+                    project_name = issue.project.name 
+                else 
+                    project_name = issue.project.parent.name 
+                end
+
+                cs_srnm = user.custom_field_values.detect {|cf| cf.custom_field.name == 'surname'}
+
+                sheet.add_row [
+                    issues_iterator.to_i,
+                    issue.description.to_s,
+                    "#{user.name.to_s[0]}.#{cs_srnm.to_s[0]}. #{user.lastname.to_s}",
+                    #time_entries.sum(&:hours).to_i, заменить на ФИО 
+                    project_name,
+                    ""
+                ], style: [
+                    iterator_cells,
+                    work_of_name,
+                    estimated_hours_cells,
+                    type_of_work,
+                    empty_cell
+                ]
+                issues_iterator += 1
+            end
+        end
+        
+        sheet.column_widths 5, 60, 10, 20, 35
+        sheet.add_row []
+            sheet.add_row []
+            sheet.add_row ["", "Согласовал: начальник УНТР ______________ Д.С. Бикзигитов", "", "", ""], style: footer_style
+            sheet.add_row []
+            sheet.add_row []
+            sheet.add_row ["", "Ознакомлены:"], style: sign_footer
+            sheet.add_row []
+
+            #Блок подписей
+            i = 1
+            sorted_users.each do |user|
+                custom_field_users_surname2 = user.custom_field_values.detect {|cf| cf.custom_field.name == 'surname'}
+                sheet.add_row ["#{i}", "________________/#{user.name.to_s[0]}.#{custom_field_users_surname2.to_s[0]}. #{user.lastname.to_s}"], style: [sign_footer_iter, sign_footer]
+                i += 1 
+            end
+    end
+    
+end
+
+
+
+
