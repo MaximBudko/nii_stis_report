@@ -1,35 +1,46 @@
-.btn {
-	display: inline-block !important;	
-	box-sizing: border-box;
-	padding: 0 20px !important;
-	margin: 0 15px 15px 0 !important;
-	outline: none;
-	border: none;  
-	border-radius: 4px !important;
-	height: 32px;
-	line-height: 32px;
-	font-size: 14px;
-	font-weight: 500;
-	text-decoration: none;
-	color: #fff;
-	background-color: #3775dd !important;
-	box-shadow: 0 2px #21487f !important;
-	cursor: pointer !important;
-	user-select: none;
-	appearance: none;
-	touch-action: manipulation;  
-	vertical-align: top;
+/* Стили для карточек с максимальным приоритетом */
+.card-container {
+    display: flex !important;
+    gap: 20px !important; /* Отступ между карточками */
+    padding-left: 20px !important; /* Отступ от левого края страницы */
+    overflow-x: auto !important; /* Прокрутка, если карточек много */
 }
-.btn:hover {
-	background-color: #002fed;
+
+.card {
+    border: 2px solid #ddd !important;
+    border-radius: 10px !important;
+    padding: 20px !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    background-color: #fff !important;
+    min-width: 250px !important;
+    max-width: 300px !important;
 }
-.btn:active {
-	background-color: #2f599e !important;
+
+.card h2 {
+    font-size: 1.5em !important;
+    margin-bottom: 10px !important;
 }
-.btn:focus-visible {
-	box-shadow: 0 0 0 3px lightskyblue;
+
+.card input[type="checkbox"] {
+    margin-right: 10px !important;
 }
-.btn:disabled {
-	background-color: #6c87b5;
-	pointer-events: none;
+
+.card input[type="date"] {
+    width: 100% !important;
+    margin-bottom: 10px !important;
+    padding: 5px !important;
+}
+
+.card button {
+    background-color: #007bff !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s !important;
+}
+
+.card button:hover {
+    background-color: #0056b3 !important;
 }

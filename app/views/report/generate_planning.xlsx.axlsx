@@ -124,7 +124,6 @@ groups.each do |group|
 
 
         sorted_users.each do |user|
-            #sheet.merge_cells("A#{ultimate_iterator}:E#{ultimate_iterator}")
             
             #Переворот ФИО в нужную последовательность
             get_user_name = user.name
@@ -156,7 +155,17 @@ groups.each do |group|
             
             user_issues.each do |issue|
 
-                
+                if issue.status.name == 'Resolved' || 
+                issue.status.name == 'Feedback' || 
+                issue.status.name == 'Closed' || 
+                issue.status.name == 'Rejected' ||
+                issue.status.name == 'Проверка'||
+                issue.status.name == 'Решена' ||
+                issue.status.name == 'Закрыта' ||
+                issue.status.name == 'Отклонена'
+                    next
+                end
+
                 project_name = "Нет данных"
 
                 if issue.project.parent == nil && issue.project.name != nil

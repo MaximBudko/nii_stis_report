@@ -40,6 +40,7 @@ class ReportController < ApplicationController
   end
 
   def generate_planning
+    @selected_groups_for_temp = params[:groups]
     planning_date = params[:planning_date]
     if planning_date.blank?
       flash[:error] = "Необходимо указать дату !"

@@ -1,8 +1,9 @@
 <%= stylesheet_link_tag 'monthly_report', plugin: 'monthly_report' %>
-    <h1>Генерация отчета</h1>
+<div class='card-container'>
+    
     <%= form_with url: generate_report_path(format: :xlsx), method: :post, local: true do |f| %>
-
-    <div>
+    <div class='card'>
+        <h1>Генерация отчета</h1>
         <% @groups123.each do |group| %>
         <% next if group.name == 'Анонимные пользователи' || 
         group.name == 'Не участвующие пользователи' || 
@@ -13,37 +14,29 @@
             <%= label_tag "groups_#{group.name}", group.name%>
         </div>
         <% end %>
-    </div>
-    <div>
-        <label for="starte_date">
-            Дата начала:
-        </label>
-        <%= f.date_field 'start_date'%>
-    </div>
-    <div>
-        <label>
-            Дата окончания:
-        </label>
+        <label for="starte_date">Дата начала:</label>
+            <%= f.date_field 'start_date'%>
+        <label>Дата окончания:</label>
         <%= f.date_field 'end_date'%>
+        <%= f.submit "Сгенерировать", class: ''%>  
+        <% end %>
     </div>
+    <div class='card'>
+        <h1 class=''>Генерация плана работ</h1>
+            <%= form_with url: generate_planning_path(format: :xlsx), method: :post, local: true do |j| %>
+                <% @groups123.each do |group| %>
+                <% next if group.name == 'Анонимные пользователи' || 
+                    group.name == 'Не участвующие пользователи' || 
+                    group.name == 'Anonymous' || 
+                    group.name == 'Non member'%>
         <div>
-            <%= f.submit "Сгенерировать", class: 'btn'%>  
-            <hr>
+            <%= check_box_tag 'groups[]', group.name, @selected_groups.include?(group.id.to_s), class: 'checkbox-other'  %>
+            <%= label_tag "groups_#{group.name}", group.name%>
         </div>
         <% end %>
-    <div>
-        <h1>Генерация плана работ</h1>
-        <div>
-            <%= form_with url: generate_planning_path(format: :xlsx), method: :post, local: true do |j| %>
-        <div>
             <label>Дата нача планирования:</label>
             <%= j.date_field 'planning_date'%>
-        </div>
-        <div>
-            <%= j.submit "Планирование", class: 'btn'%>
-        </div>
-    </div>   
+            <%= j.submit "Планирование", class: ''%>
+    </div>  
 </div>
 <% end %>
-</div> 
-    
