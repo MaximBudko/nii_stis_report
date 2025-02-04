@@ -103,7 +103,7 @@ groups.each do |group|
         sheet.add_row [title_table_view, "", "", "", ""],  height: 50, style: table_title
         sheet.merge_cells('A3:E3')
 
-        sheet.add_row ["№ п/п", "Наименование выполненных работ, мероприятий", "Ответственный исполнитель (подразделение)","Вид и/или тема работы", "Форма подтвержения выполнения работ, подтверждающие документы(при наличии)"], style: table_column_name
+        sheet.add_row ["№ п/п", "Наименование выполненных работ, мероприятий", "Ответственный исполнитель (подразделение)","Вид и/или тема работы", "Примечание"], style: table_column_name
         sheet.column_widths 5, 60, 10, 20, 35
         sheet.add_row ["1","2","3","4","5"], style:  table_column_name
 
@@ -194,7 +194,7 @@ groups.each do |group|
             end
         end
         
-        sheet.column_widths 5, 60, 10, 20, 35
+        sheet.column_widths 5, 60, 25, 20, 35
         sheet.add_row []
             sheet.add_row []
             sheet.add_row ["", "Согласовал: начальник УНТР ______________ Д.С. Бикзигитов", "", "", ""], style: footer_style
