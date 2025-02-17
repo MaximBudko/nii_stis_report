@@ -147,7 +147,7 @@ groups.each do |group|
             
 
             all_issues.each do |issue|
-                if issue.start_date <= @planning_date
+                if issue.start_date >= @planning_date
                     user_issues << issue
                 end
             end
