@@ -2,7 +2,7 @@ Redmine::Plugin.register :monthly_report do
   name 'Monthly Report plugin'
   author 'Maxim Budko'
   description 'Генерация ежемесячного отчета НИИ СТИС'
-  version '1.1.4'
+  version '1.1.5'
   url 'https://github.com/MaximBudko/nii_stis_report'
   author_url 'https://github.com/MaximBudko'
 
