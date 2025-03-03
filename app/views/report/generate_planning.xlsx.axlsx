@@ -143,12 +143,13 @@ groups.each do |group|
             
             #Выбор тех задач которые попадают в диапазон
             user_issues = []
-            
-            
 
             all_issues.each do |issue|
-                if issue.closed_on == nil || issue.closed_on >= @planning_date
+
+                if issue.due_date == nil 
                     user_issues << issue
+                elsif @planning_date.to_date <= issue.due_date.to_date
+                    user_issues << issue  
                 end
             end
 
