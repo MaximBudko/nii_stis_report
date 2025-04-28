@@ -167,8 +167,21 @@ groups.each do |group|
                 #Суммирование часов потраченных на задачу
                 issue_id = issue.id
                 time_entries = TimeEntry.where(issue_id: issue_id, spent_on: @start_date..@end_date) || 0
-                
-                
+
+
+                time_destroyer = 0
+                time_entries.each do |entry|
+                # Получаем все кастомные поля для записи времени
+                entry.custom_field_values.each do |custom_field_value|
+                    if custom_field_value.custom_field.name == 'Тип работ'
+                    puts "Тип работ для записи времени: #{custom_field_value.value}"
+                        if custom_field_value.value == "Сверхурочная"
+                            time_destroyer = entry.hours
+                        end
+                    end
+                end
+                 puts "Количество часов для записи времени: #{entry.hours}"
+                end
 
                 if time_entries.sum(&:hours).to_i == 0 
                     next
@@ -186,7 +199,7 @@ groups.each do |group|
                 sheet.add_row [
                     issues_iterator.to_i,
                     issue.description.to_s,
-                    time_entries.sum(&:hours).to_i,
+                    time_entries.sum(&:hours).to_i - time_destroyer.to_i,
                     project_name,
                     ""
                 ], style: [
@@ -200,7 +213,7 @@ groups.each do |group|
                 ultimate_iterator +=1
 
 
-                total_estimate += time_entries.sum(&:hours).to_i
+                total_estimate += (time_entries.sum(&:hours).to_i - time_destroyer.to_i)
             end
             issues_iterator = 1
             sheet.add_row ["ИТОГО (ч)","", "#{total_estimate}", "", ""], style: [empty_cell, empty_cell, type_of_work, empty_cell, empty_cell]
