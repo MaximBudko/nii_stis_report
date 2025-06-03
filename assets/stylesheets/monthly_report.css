@@ -44,3 +44,10 @@
 .card button:hover {
     background-color: #0056b3 !important;
 }
+
+select.small-select {
+    font-size: 12px;
+    padding: 2px 6px;
+    width: 700px; /* или конкретная ширина */
+    max-width: 300px;
+}

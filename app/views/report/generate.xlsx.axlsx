@@ -77,7 +77,7 @@ groups.each do |group|
         rt = Axlsx::RichText.new
         rt.add_run('УТВЕРЖДАЮ')
         rt.add_run("\n")
-        rt.add_run('Директор ООО НИИ СТИС')
+        rt.add_run('Директор ООО НИИСТИС')
         rt.add_run("\n")
 
         directors.each do |user|

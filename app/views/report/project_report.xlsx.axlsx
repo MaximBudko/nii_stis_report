@@ -1,0 +1,120 @@
+wb = xlsx_package.workbook
+
+
+s = wb.styles
+table_title2 = s.add_style sz: 12, alignment: {horizontal: :center, vertical: :center, wrap_text: :true}, font_name: 'Times New Roman', b: true, border: {style: :thin, color: '000000'}
+table_content = s.add_style sz: 12, alignment: {vertical: :center, wrap_text: :true}, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
+table_content_center = s.add_style sz: 12, alignment: {horizontal: :center, vertical: :center, wrap_text: :true}, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
+
+
+
+
+
+start_date = @start_date_proj
+end_date = @end_date_proj
+project_id = @global_prj_id
+
+def formatted_user_name(user)
+  return '' unless user
+
+  @surname_field_id ||= CustomField
+    .where(type: 'UserCustomField', name: 'surname')
+    .limit(1)
+    .pluck(:id)
+    .first
+
+  return user.name unless @surname_field_id
+
+  cv = CustomValue.find_by(
+    customized_type: 'Principal',
+    customized_id: user.id,
+    custom_field_id: @surname_field_id
+  )
+
+  surname = cv&.value
+  if surname.present?
+    "#{user.lastname} #{user.firstname} #{surname}"
+  else
+    "#{user.name}"
+  end
+end
+  # Генерация отчета по одному проекту
+if project_id.present?
+  project = Project.find_by(id: project_id)
+
+  if project
+    wb.add_worksheet(name: project.name[0..30]) do |sheet|
+      sheet.add_row ["№ п.п.", "Наименование работы", "Сотрудник", "Трудозатраты", "Готовность"], style: table_title2
+
+      time_entries = TimeEntry
+        .joins(:issue)
+        .where(project_id: project.id)
+        .where(spent_on: start_date..end_date)
+        .includes(:issue, :user)
+
+      issues_with_time = time_entries.group_by(&:issue)
+
+      row_index = 1
+      issues_with_time.each do |issue, entries|
+        next unless issue && issue.assigned_to.is_a?(User)
+        assignee = issue.assigned_to
+
+        assignee_entries = entries.select { |e| e.user_id == assignee.id }
+        total_hours = assignee_entries.sum(&:hours)
+        next if total_hours <= 0
+
+        sheet.add_row [
+          row_index,
+          issue.subject,
+          formatted_user_name(assignee),
+          "#{total_hours} ч.",
+          "#{issue.done_ratio}%"
+        ], style: [table_content_center, table_content, table_content, table_content_center, table_content_center]
+        row_index += 1
+      end
+      sheet.column_widths 4, 30, 47, 8, 15
+    end
+  else
+    wb.add_worksheet(name: "Ошибка") do |sheet|
+      sheet.add_row ["Проект с ID #{project_id} не найден"]
+    end
+  end
+  # Генерация отчета по всем проектам
+else
+  projects = Project.visible(User.current).order(:name)
+
+  projects.each do |project|
+    time_entries = TimeEntry
+      .joins(:issue)
+      .where(project_id: project.id)
+      .where(spent_on: start_date..end_date)
+      .includes(:issue, :user)
+
+    issues_with_time = time_entries.group_by(&:issue)
+    next if issues_with_time.empty?
+
+    wb.add_worksheet(name: project.name[0..30]) do |sheet|
+      sheet.add_row ["№ п.п.", "Наименование работы", "Сотрудник", "Трудозатраты", "Готовность"], style: table_title2
+
+      row_index = 1
+      issues_with_time.each do |issue, entries|
+        next unless issue && issue.assigned_to.is_a?(User)
+        assignee = issue.assigned_to
+
+        assignee_entries = entries.select { |e| e.user_id == assignee.id }
+        total_hours = assignee_entries.sum(&:hours)
+        next if total_hours <= 0
+
+        sheet.add_row [
+          row_index,
+          issue.subject,
+          formatted_user_name(assignee),
+          "#{total_hours} ч.",
+          "#{issue.done_ratio}%"
+        ], style: [table_content_center, table_content, table_content, table_content_center, table_content_center]
+        row_index += 1
+      end
+      sheet.column_widths 4, 30, 47, 8, 15
+    end
+  end
+end

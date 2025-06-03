@@ -56,4 +56,31 @@ class ReportController < ApplicationController
       }
     end
   end
+
+  def project_report
+    project_id = params[:project_id]
+    date_start = params[:date_sP]
+    date_end   = params[:date_eP]
+
+    if date_start.blank?
+      flash[:error] = "Необходимо указать дату начала!"
+      redirect_to action: 'index' and return
+    end
+    
+    if date_end.blank?
+      flash[:error] = "Необходимо указать дату окончания!"
+      redirect_to action: 'index' and return
+    end
+
+    @start_date_proj = Date.parse(date_start)
+    @end_date_proj = Date.parse(date_end)
+    @global_prj_id = project_id
+    
+    respond_to do |format|
+      format.html
+      format.xlsx {
+        response.headers['Content-Disposition'] = 'attacment; filename="Отчет по задачам на проекте.xlsx"'
+      }
+    end
+  end
 end

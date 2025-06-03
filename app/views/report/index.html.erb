@@ -1,8 +1,7 @@
 <%= stylesheet_link_tag 'monthly_report', plugin: 'monthly_report' %>
 <div class='card-container'>
-    
-    <%= form_with url: generate_report_path(format: :xlsx), method: :post, local: true do |f| %>
     <div class='card'>
+    <%= form_with url: generate_report_path(format: :xlsx), method: :post, local: true do |f| %>
         <h1>Генерация отчета</h1>
         <% @groups123.each do |group| %>
         <% next if group.name == 'Анонимные пользователи' || 
@@ -19,7 +18,7 @@
         <label>Дата окончания:</label>
         <%= f.date_field 'end_date'%>
         <%= f.submit "Сгенерировать", class: ''%>  
-        <% end %>
+    <% end %>
     </div>
     <div class='card'>
         <h1 class=''>Генерация плана работ</h1>
@@ -33,10 +32,28 @@
             <%= check_box_tag 'groups[]', group.name, @selected_groups.include?(group.id.to_s), class: 'checkbox-other'  %>
             <%= label_tag "groups_#{group.name}", group.name%>
         </div>
-        <% end %>
+                <% end %>
             <label>Дата нача планирования:</label>
             <%= j.date_field 'planning_date'%>
             <%= j.submit "Планирование", class: ''%>
+            <% end %>
+    </div>
+    <div class='card'>
+        <h1 class=''>Отчет по проектам</h1>
+        <%= form_with url: project_report_path(format: :xlsx), method: :post, local: true do |l|%>
+            <div>
+            <%= l.label :project_id, "Выбор проекта:" %><br>
+            <%= l.select :project_id,
+            Project.visible(User.current).order(:name).map { |p| [p.name, p.id] },
+            { include_blank: true },
+            { class: "small-select" } %>
+            </div>
+
+            <label for="starte_date_proj">Дата начала:</label>
+            <%= l.date_field 'date_sP'%>
+            <label>Дата окончания:</label>
+            <%= l.date_field 'date_eP'%>
+            <%= l.submit "Сгенирировать" %>
+        <% end %>
     </div>  
 </div>
-<% end %>
