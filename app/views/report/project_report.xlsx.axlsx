@@ -6,14 +6,11 @@ table_title2 = s.add_style sz: 12, alignment: {horizontal: :center, vertical: :c
 table_content = s.add_style sz: 12, alignment: {vertical: :center, wrap_text: :true}, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
 table_content_center = s.add_style sz: 12, alignment: {horizontal: :center, vertical: :center, wrap_text: :true}, font_name: 'Times New Roman', border: {style: :thin, color: '000000'}
 
-
-
-
-
 start_date = @start_date_proj
 end_date = @end_date_proj
 project_id = @global_prj_id
 
+# Метод: Имя + фамилия из custom field
 def formatted_user_name(user)
   return '' unless user
 
@@ -32,23 +29,22 @@ def formatted_user_name(user)
   )
 
   surname = cv&.value
-  if surname.present?
-    "#{user.lastname} #{user.firstname} #{surname}"
-  else
-    "#{user.name}"
-  end
+  surname.present? ? "#{user.lastname} #{user.firstname} #{surname}" : user.name
 end
-  # Генерация отчета по одному проекту
+
 if project_id.present?
+  # Отчет по одному проекту (с подпроектами)
   project = Project.find_by(id: project_id)
 
   if project
+    project_ids = [project.id] + project.descendants.visible.pluck(:id)
+
     wb.add_worksheet(name: project.name[0..30]) do |sheet|
       sheet.add_row ["№ п.п.", "Наименование работы", "Сотрудник", "Трудозатраты", "Готовность"], style: table_title2
 
       time_entries = TimeEntry
         .joins(:issue)
-        .where(project_id: project.id)
+        .where(project_id: project_ids)
         .where(spent_on: start_date..end_date)
         .includes(:issue, :user)
 
@@ -65,7 +61,7 @@ if project_id.present?
 
         sheet.add_row [
           row_index,
-          issue.subject,
+          issue.description,
           formatted_user_name(assignee),
           "#{total_hours} ч.",
           "#{issue.done_ratio}%"
@@ -79,14 +75,17 @@ if project_id.present?
       sheet.add_row ["Проект с ID #{project_id} не найден"]
     end
   end
-  # Генерация отчета по всем проектам
+
 else
-  projects = Project.visible(User.current).order(:name)
+  # Отчет по всем корневым проектам (включая подпроекты в выборку)
+  projects = Project.visible(User.current).where(parent_id: nil).order(:name)
 
   projects.each do |project|
+    project_ids = [project.id] + project.descendants.visible.pluck(:id)
+
     time_entries = TimeEntry
       .joins(:issue)
-      .where(project_id: project.id)
+      .where(project_id: project_ids)
       .where(spent_on: start_date..end_date)
       .includes(:issue, :user)
 
@@ -107,9 +106,9 @@ else
 
         sheet.add_row [
           row_index,
-          issue.subject,
+          issue.description,
           formatted_user_name(assignee),
-          "#{total_hours} ч.",
+          total_hours,
           "#{issue.done_ratio}%"
         ], style: [table_content_center, table_content, table_content, table_content_center, table_content_center]
         row_index += 1

@@ -44,7 +44,7 @@
             <div>
             <%= l.label :project_id, "Выбор проекта:" %><br>
             <%= l.select :project_id,
-            Project.visible(User.current).order(:name).map { |p| [p.name, p.id] },
+            Project.visible(User.current).where(parent_id: nil).order(:name).map { |p| [p.name, p.id] },
             { include_blank: true },
             { class: "small-select" } %>
             </div>
